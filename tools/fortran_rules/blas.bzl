@@ -16,10 +16,10 @@ def blas_library(name, srcs, hdrs, deps, modules):
             srcs = hdrs + modules[module]['srcs'],
             hdrs = modules[module].get('hdrs', []),
             deps = deps,
-            copts = [
+            copts = modules[module].get('copts', []) + [
                 "-D" + DTYPE_MAP[module[0]],
-                "-DASMNAME=_" + module,
-                "-DASMFNAME=_" + module + "_",
+                "-DASMNAME=" + module,
+                "-DASMFNAME=" + module + "_",
                 "-DNAME=" + module + "_",
                 "-DCNAME=" + module,
                 "-DCHAR_NAME=\\\"" + module + "_\\\"",

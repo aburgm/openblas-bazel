@@ -4,7 +4,7 @@
 # TODO: try out building fortran without -fPIC since
 #       we link everything statically anyway. If any remains.
 # TODO: Try out building with multithreaded support (omp?)
-#       By defining SMP.
+#       By defining SMP, and possibly THREADED_LEVEL3.
 # TODO: Look for other standard copts in Makefile.system
 #
 # TODO: Rerun config creation on:
@@ -123,18 +123,57 @@ blas_library(
     deps = [":blas_core"],
     modules = {
         "dgemv": { "srcs": ["interface/gemv.c"] },
+        "dgemm": { "srcs": ["interface/gemm.c"] },
+        "dgemm_nn": {
+            "srcs": ["driver/level3/gemm.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DNN"],
+        },
+        "dgemm_tn": {
+            "srcs": ["driver/level3/gemm.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTN"],
+        },
+        "dgemm_nt": {
+            "srcs": ["driver/level3/gemm.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DNT"],
+        },
+        "dgemm_tt": {
+            "srcs": ["driver/level3/gemm.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTT"],
+        },
         "dgemv_n": { # TODO: this will have to become a select for other architectures
-             "srcs": ["kernel/x86_64/dgemv_n_4.c"],
-             "hdrs": ["kernel/x86_64/dgemv_n_microk_haswell-4.c"],
-         },
-         "dgemv_t": { # TODO: this will have to become a select for other architectures
-             "srcs": ["kernel/x86_64/dgemv_t_4.c"],
-             "hdrs": ["kernel/x86_64/dgemv_t_microk_haswell-4.c"],
-         },
-         "dscal_k": { # TODO: ...
+            "srcs": ["kernel/x86_64/dgemv_n_4.c"],
+            "hdrs": ["kernel/x86_64/dgemv_n_microk_haswell-4.c"],
+        },
+        "dgemv_t": { # TODO: this will have to become a select for other architectures
+            "srcs": ["kernel/x86_64/dgemv_t_4.c"],
+            "hdrs": ["kernel/x86_64/dgemv_t_microk_haswell-4.c"],
+        },
+        "dscal_k": { # TODO: ...
             "srcs": ["kernel/x86_64/dscal.c"],
             "hdrs": ["kernel/x86_64/dscal_microk_haswell-2.c"],
-         }
+        },
+        "dgemm_kernel": {
+            "srcs": ["kernel/x86_64/dgemm_kernel_4x8_haswell.S"],
+        },
+        "dgemm_beta": {
+            "srcs": ["kernel/x86_64/gemm_beta.S"],
+        },
+        "dgemm_itcopy": {
+            "srcs": ["kernel/generic/gemm_tcopy_4.c"],
+        },
+        "dgemm_incopy": {
+            "srcs": ["kernel/generic/gemm_ncopy_4.c"],
+        },
+        "dgemm_otcopy": {
+            "srcs": ["kernel/generic/gemm_tcopy_8.c"],
+        },
+        "dgemm_oncopy": {
+            "srcs": ["kernel/generic/gemm_ncopy_8.c"],
+        },
     }
 )
 
@@ -222,6 +261,7 @@ cc_library(
     deps = [
         ":blas"
     ],
+    visibility = ["//visibility:public"],
 )
 
 cc_library(
@@ -266,6 +306,16 @@ cc_binary(
     name = "cblas_example1",
     srcs = [
         "lapack-netlib/CBLAS/examples/cblas_example1.c",
+    ],
+    deps = [
+        ":cblas"
+    ]
+)
+
+cc_binary(
+    name = "cblas_example2",
+    srcs = [
+        "lapack-netlib/CBLAS/examples/cblas_example2.c",
     ],
     deps = [
         ":cblas"
