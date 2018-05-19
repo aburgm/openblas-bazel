@@ -6,8 +6,8 @@ def blas_library(name, srcs, hdrs, deps, modules):
     all_libraries = []
 
     DTYPE_MAP = {
-        'd': 'DOUBLE',
-        's': 'SINGLE',
+        'd': ['-DDOUBLE'],
+        's': ['-DSINGLE'],
     }
 
     for module in modules:
@@ -16,8 +16,7 @@ def blas_library(name, srcs, hdrs, deps, modules):
             srcs = hdrs + modules[module]['srcs'],
             hdrs = modules[module].get('hdrs', []),
             deps = deps,
-            copts = modules[module].get('copts', []) + [
-                "-D" + DTYPE_MAP[module[0]],
+            copts = modules[module].get('copts', []) + DTYPE_MAP.get(module[0], []) + [
                 "-DASMNAME=" + module,
                 "-DASMFNAME=" + module + "_",
                 "-DNAME=" + module + "_",

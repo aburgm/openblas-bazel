@@ -6,13 +6,14 @@
 # TODO: Try out building with multithreaded support (omp?)
 #       By defining SMP, and possibly THREADED_LEVEL3.
 # TODO: Look for other standard copts in Makefile.system
+# TODO: Investigate NO_WARMUP define
 #
 # TODO: Rerun config creation on:
 #       ARM
 #       My Mac
 #       The Dell
 
-#load("@fortran_rules//:fortran.bzl", "fortran_library")
+load("@fortran_rules//:fortran.bzl", "fortran_library")
 load("@fortran_rules//:blas.bzl", "blas_library")
 
 #fortran_library(
@@ -122,6 +123,15 @@ blas_library(
     hdrs = [],
     deps = [":blas_core"],
     modules = {
+        "dlamch": { "srcs": ["driver/others/lamch.c"] },
+        "lsame": { "srcs": ["driver/others/lsame.c"] },
+        "idamax": {
+            "srcs": ["interface/imax.c"],
+            "copts": ["-DUSE_ABS", "-DDOUBLE"],
+        },
+        "dcopy": { "srcs": ["interface/copy.c"] },
+        "dasum": { "srcs": ["interface/asum.c"] },
+        "dscal": { "srcs": ["interface/scal.c"] },
         "dgemv": { "srcs": ["interface/gemv.c"] },
         "dgemm": { "srcs": ["interface/gemm.c"] },
         "dgemm_nn": {
@@ -144,6 +154,20 @@ blas_library(
             "hdrs": ["driver/level3/level3.c"],
             "copts": ["-DTT"],
         },
+        "idamax_k": {
+            "srcs": ["kernel/x86_64/iamax_sse2.S"],
+            "copts": ["-DDOUBLE"],
+        },
+        "dcopy_k": {
+            "srcs": ["kernel/x86_64/copy_sse2.S"],
+        },
+        "dasum_k": {
+            "srcs": ["kernel/x86_64/asum_sse2.S"],
+        },
+        "dscal_k": { # TODO: ...
+            "srcs": ["kernel/x86_64/dscal.c"],
+            "hdrs": ["kernel/x86_64/dscal_microk_haswell-2.c"],
+        },
         "dgemv_n": { # TODO: this will have to become a select for other architectures
             "srcs": ["kernel/x86_64/dgemv_n_4.c"],
             "hdrs": ["kernel/x86_64/dgemv_n_microk_haswell-4.c"],
@@ -151,10 +175,6 @@ blas_library(
         "dgemv_t": { # TODO: this will have to become a select for other architectures
             "srcs": ["kernel/x86_64/dgemv_t_4.c"],
             "hdrs": ["kernel/x86_64/dgemv_t_microk_haswell-4.c"],
-        },
-        "dscal_k": { # TODO: ...
-            "srcs": ["kernel/x86_64/dscal.c"],
-            "hdrs": ["kernel/x86_64/dscal_microk_haswell-2.c"],
         },
         "dgemm_kernel": {
             "srcs": ["kernel/x86_64/dgemm_kernel_4x8_haswell.S"],
@@ -177,60 +197,25 @@ blas_library(
     }
 )
 
-#cc_library(
-#    name = "dgemv_n",
-#    hdrs = [
-#        "kernel/x86_64/dgemv_n_microk_haswell-4.c",
-#    ],
-#    copts = [
-#        "-DDOUBLE",
-#        "-DASMNAME=_dgemv_n",
-#        "-DASMFNAME=_dgemv_n_",
-#        "-DNAME=dgemv_n_",
-#        "-DCNAME=dgemv_n",
-#        "-DCHAR_NAME=\\\"dgemv_n_\\\"",
-#        "-DCHAR_CNAME=\\\"dgemv_n\\\"",
-#    ],
-#)
-
-#cc_library(
-#    name = "blas",
-#    srcs = [
-#        "config.h",
-#        "common_x86_64.h", # TODO(armin): select this
-#        "common_linux.h", # TODO(armin): select this
-#        "common.h",
-#        "common_param.h",
-#        "common_interface.h",
-#        "common_macro.h",
-#        "common_s.h",
-#        "common_d.h",
-#        "common_q.h",
-#        "common_c.h",
-#        "common_z.h",
-#        "common_x.h",
-#        "common_level1.h",
-#        "common_level2.h",
-#        "common_level3.h",
-#        "common_lapack.h",
-#        "common_stackalloc.h",
-#        "param.h",
-#        "l1param.h",
-#        "interface/gemv.c",
-#    ],
-#    copts = [
-#        "-DDOUBLE",
-#        "-DASMNAME=_dgemv",
-#        "-DASMFNAME=_dgemv_",
-#        "-DNAME=dgemv_",
-#        "-DCNAME=dgemv",
-#        "-DCHAR_NAME=\\\"dgemv_\\\"",
-#        "-DCHAR_CNAME=\\\"dgemv\\\"",
-#    ],
-#    deps = [
-#        "dgemv_n"
-#    ],
-#)
+# The fortran parts of lapack reference implementation which are
+# not available otherwise in lapack/ in C.
+fortran_library(
+    name = "lapack",
+    srcs = [
+        "lapack-netlib/SRC/dgecon.f",
+        "lapack-netlib/SRC/dlange.f",
+        "lapack-netlib/SRC/dlacn2.f",
+        "lapack-netlib/SRC/disnan.f",
+        "lapack-netlib/SRC/dlaisnan.f",
+        "lapack-netlib/SRC/dlassq.f",
+        "lapack-netlib/SRC/drscl.f",
+        "lapack-netlib/SRC/dlabad.f",
+        "lapack-netlib/SRC/dlatrs.f",
+    ],
+    deps = [
+        ":blas",
+    ]
+)
 
 genrule(
     name = "cblas_mangling",
@@ -272,35 +257,28 @@ cc_library(
         "lapack-netlib/LAPACKE/include/lapacke_utils.h",
         "lapack-netlib/LAPACKE/include/lapacke_mangling.h",
     ] + glob([
-        "lapack-netlib/LAPACKE/src/lapacke_*.c",
+        "lapack-netlib/LAPACKE/src/lapacke_dgecon*.c",
+        "lapack-netlib/LAPACKE/src/lapacke_dgetrf*.c",
+        "lapack-netlib/LAPACKE/src/lapacke_dlange*.c",
         "lapack-netlib/LAPACKE/utils/lapacke_*.c",
-    ], exclude = [
-        "lapack-netlib/LAPACKE/src/lapacke_dgelq.c",
-        "lapack-netlib/LAPACKE/src/lapacke_dgelq_work.c",
-        "lapack-netlib/LAPACKE/src/lapacke_sgelq.c",
-        "lapack-netlib/LAPACKE/src/lapacke_sgelq_work.c",
-        "lapack-netlib/LAPACKE/src/lapacke_zgelq.c",
-        "lapack-netlib/LAPACKE/src/lapacke_zgelq_work.c",
-        "lapack-netlib/LAPACKE/src/lapacke_cgelq.c",
-        "lapack-netlib/LAPACKE/src/lapacke_cgelq_work.c",
     ]),
     includes = [
         "lapack-netlib/LAPACKE/include",
     ],
-#    deps = [
-#        ":lapack"
-#    ],
+    deps = [
+        ":lapack"
+    ],
 )
 
-#cc_binary(
-#    name = "example_user",
-#    srcs = [
-#        "lapack-netlib/LAPACKE/example/example_user.c",
-#    ],
-#    deps = [
-#        ":lapacke"
-#    ]
-#)
+cc_binary(
+    name = "lapacke_example_user",
+    srcs = [
+        "lapack-netlib/LAPACKE/example/example_user.c",
+    ],
+    deps = [
+        ":lapacke"
+    ]
+)
 
 cc_binary(
     name = "cblas_example1",
