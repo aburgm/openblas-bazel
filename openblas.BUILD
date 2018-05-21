@@ -1,4 +1,4 @@
-# TODO: Disable nancheck
+# TODO: Disable nancheck in lapacke
 # TODO: Enable various SSE optimizations and such
 # TODO: make sure the ASM kernels are built and used
 # TODO: try out building fortran without -fPIC since
@@ -138,6 +138,14 @@ blas_library(
         "dtrsv": { "srcs": ["interface/trsv.c"] },
         "dgemv": { "srcs": ["interface/gemv.c"] },
         "dgemm": { "srcs": ["interface/gemm.c"] },
+        "dger": { "srcs": ["interface/ger.c"] },
+        "dnrm2": { "srcs": ["interface/nrm2.c"] },
+        "dtrmv": { "srcs": ["interface/trmv.c"] },
+        "dtrsm": { "srcs": ["interface/trsm.c"] },
+        "dtrmm": {
+            "srcs": ["interface/trsm.c"],
+            "copts": ["-DTRMM"],
+        },
         "dtrsv_NUU": {
             "srcs": ["driver/level2/trsv_U.c"],
             "hdrs": [],
@@ -198,9 +206,92 @@ blas_library(
             "hdrs": ["driver/level3/level3.c"],
             "copts": ["-DTT"],
         },
+        "dtrmm_LNUU": {
+            "srcs": ["driver/level3/trmm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-DUPPER", "-DUNIT"],
+        },
+        "dtrmm_LNUN": {
+            "srcs": ["driver/level3/trmm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-DUPPER", "-UUNIT"],
+        },
+        "dtrmm_LTUU": {
+            "srcs": ["driver/level3/trmm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-DUPPER", "-DUNIT"],
+        },
+        "dtrmm_LTUN": {
+            "srcs": ["driver/level3/trmm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-DUPPER", "-UUNIT"],
+        },
+        "dtrmm_LNLU": {
+            "srcs": ["driver/level3/trmm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-UUPPER", "-DUNIT"],
+        },
+        "dtrmm_LNLN": {
+            "srcs": ["driver/level3/trmm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-UUPPER", "-UUNIT"],
+        },
+        "dtrmm_LTLU": {
+            "srcs": ["driver/level3/trmm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-UUPPER", "-DUNIT"],
+        },
+        "dtrmm_LTLN": {
+            "srcs": ["driver/level3/trmm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-UUPPER", "-UUNIT"],
+        },
+        "dtrmm_RNUU": {
+            "srcs": ["driver/level3/trmm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-DUPPER", "-DUNIT"],
+        },
+        "dtrmm_RNUN": {
+            "srcs": ["driver/level3/trmm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-DUPPER", "-UUNIT"],
+        },
+        "dtrmm_RNLU": {
+            "srcs": ["driver/level3/trmm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-UUPPER", "-DUNIT"],
+        },
+        "dtrmm_RNLN": {
+            "srcs": ["driver/level3/trmm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-UUPPER", "-UUNIT"],
+        },
+        "dtrmm_RTUU": {
+            "srcs": ["driver/level3/trmm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-DUPPER", "-DUNIT"],
+        },
+        "dtrmm_RTUN": {
+            "srcs": ["driver/level3/trmm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-DUPPER", "-UUNIT"],
+        },
+        "dtrmm_RTLU": {
+            "srcs": ["driver/level3/trmm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-UUPPER", "-DUNIT"],
+        },
+        "dtrmm_RTLN": {
+            "srcs": ["driver/level3/trmm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-UUPPER", "-UUNIT"],
+        },
         "idamax_k": {
             "srcs": ["kernel/x86_64/iamax_sse2.S"],
             "copts": ["-DDOUBLE"],
+        },
+        "dger_k": {
+            "srcs": ["kernel/generic/ger.c"],
         },
         "dcopy_k": {
             "srcs": ["kernel/x86_64/copy_sse2.S"],
@@ -249,6 +340,9 @@ blas_library(
         "dswap_k": {
             "srcs": ["kernel/x86_64/swap_sse2.S"],
         },
+        "dnrm2_k": {
+            "srcs": ["kernel/x86_64/nrm2.S"],
+        },
         "dtrsm_iltucopy": {
             "srcs": ["kernel/generic/trsm_ltcopy_4.c"],
             "copts": ["-UOUTER", "-ULOWER", "-DUNIT"],
@@ -256,6 +350,86 @@ blas_library(
         "dtrsm_kernel_LT": {
             "srcs": ["kernel/generic/trsm_kernel_LT.c"],
             "copts": ["-DTRSMKERNEL", "-UUPPER", "-DLT", "-UCONJ"],
+        },
+        "dtrmm_iutncopy": {
+            "srcs": ["kernel/generic/trmm_utcopy_4.c"],
+            "copts": ["-UOUTER", "-ULOWER", "-UUNIT"],
+        },
+        "dtrmm_iutucopy": {
+            "srcs": ["kernel/generic/trmm_utcopy_4.c"],
+            "copts": ["-UOUTER", "-ULOWER", "-DUNIT"],
+        },
+        "dtrmm_iunncopy": {
+            "srcs": ["kernel/generic/trmm_uncopy_4.c"],
+            "copts": ["-UOUTER", "-ULOWER", "-UUNIT"],
+        },
+        "dtrmm_iunucopy": {
+            "srcs": ["kernel/generic/trmm_uncopy_4.c"],
+            "copts": ["-UOUTER", "-ULOWER", "-DUNIT"],
+        },
+        "dtrmm_iltncopy": {
+            "srcs": ["kernel/generic/trmm_ltcopy_4.c"],
+            "copts": ["-UOUTER", "-DLOWER", "-UUNIT"],
+        },
+        "dtrmm_iltucopy": {
+            "srcs": ["kernel/generic/trmm_ltcopy_4.c"],
+            "copts": ["-UOUTER", "-DLOWER", "-DUNIT"],
+        },
+        "dtrmm_ilnucopy": {
+            "srcs": ["kernel/generic/trmm_lncopy_4.c"],
+            "copts": ["-UOUTER", "-DLOWER", "-DUNIT"],
+        },
+        "dtrmm_ilnncopy": {
+            "srcs": ["kernel/generic/trmm_lncopy_4.c"],
+            "copts": ["-UOUTER", "-DLOWER", "-UUNIT"],
+        },
+        "dtrmm_outncopy": {
+            "srcs": ["kernel/generic/trmm_utcopy_8.c"],
+            "copts": ["-DOUTER", "-ULOWER", "-UUNIT"],
+        },
+        "dtrmm_outucopy": {
+            "srcs": ["kernel/generic/trmm_utcopy_8.c"],
+            "copts": ["-DOUTER", "-ULOWER", "-DUNIT"],
+        },
+        "dtrmm_ounncopy": {
+            "srcs": ["kernel/generic/trmm_uncopy_8.c"],
+            "copts": ["-DOUTER", "-ULOWER", "-UUNIT"],
+        },
+        "dtrmm_ounucopy": {
+            "srcs": ["kernel/generic/trmm_uncopy_8.c"],
+            "copts": ["-DOUTER", "-ULOWER", "-DUNIT"],
+        },
+        "dtrmm_oltncopy": {
+            "srcs": ["kernel/generic/trmm_ltcopy_8.c"],
+            "copts": ["-DOUTER", "-DLOWER", "-UUNIT"],
+        },
+        "dtrmm_oltucopy": {
+            "srcs": ["kernel/generic/trmm_ltcopy_8.c"],
+            "copts": ["-DOUTER", "-DLOWER", "-DUNIT"],
+        },
+        "dtrmm_olnncopy": {
+            "srcs": ["kernel/generic/trmm_lncopy_8.c"],
+            "copts": ["-DOUTER", "-DLOWER", "-UUNIT"],
+        },
+        "dtrmm_olnucopy": {
+            "srcs": ["kernel/generic/trmm_lncopy_8.c"],
+            "copts": ["-DOUTER", "-DLOWER", "-DUNIT"],
+        },
+        "dtrmm_kernel_LN": {
+            "srcs": ["kernel/x86_64/dtrmm_kernel_4x8_haswell.c"],
+            "copts": ["-DTRMMKERNEL", "-DLEFT", "-UTRANSA"],
+        },
+        "dtrmm_kernel_LT": {
+            "srcs": ["kernel/x86_64/dtrmm_kernel_4x8_haswell.c"],
+            "copts": ["-DTRMMKERNEL", "-DLEFT", "-DTRANSA"],
+        },
+        "dtrmm_kernel_RN": {
+            "srcs": ["kernel/x86_64/dtrmm_kernel_4x8_haswell.c"],
+            "copts": ["-DTRMMKERNEL", "-ULEFT", "-UTRANSA"],
+        },
+        "dtrmm_kernel_RT": {
+            "srcs": ["kernel/x86_64/dtrmm_kernel_4x8_haswell.c"],
+            "copts": ["-DTRMMKERNEL", "-ULEFT", "-DTRANSA"],
         },
     }
 )
@@ -274,6 +448,29 @@ fortran_library(
         "lapack-netlib/SRC/drscl.f",
         "lapack-netlib/SRC/dlabad.f",
         "lapack-netlib/SRC/dlatrs.f",
+        "lapack-netlib/SRC/dgels.f",
+        "lapack-netlib/SRC/dtrtrs.f",
+        "lapack-netlib/SRC/dormlq.f",
+        "lapack-netlib/SRC/dormqr.f",
+        "lapack-netlib/SRC/dorml2.f",
+        "lapack-netlib/SRC/dgelqf.f",
+        "lapack-netlib/SRC/dgelq2.f",
+        "lapack-netlib/SRC/dgeqrf.f",
+        "lapack-netlib/SRC/dlascl.f",
+        "lapack-netlib/SRC/dlaset.f",
+        "lapack-netlib/SRC/ilaenv.f",
+        "lapack-netlib/SRC/dlarf.f",
+        "lapack-netlib/SRC/iladlr.f",
+        "lapack-netlib/SRC/iladlc.f",
+        "lapack-netlib/SRC/dlarfg.f",
+        "lapack-netlib/SRC/dlapy2.f",
+        "lapack-netlib/SRC/dlarfb.f",
+        "lapack-netlib/SRC/dgeqr2.f",
+        "lapack-netlib/SRC/dlarft.f",
+        "lapack-netlib/SRC/iparam2stage.F",
+        "lapack-netlib/SRC/iparmq.f",
+        "lapack-netlib/SRC/dorm2r.f",
+        "lapack-netlib/SRC/ieeeck.f",
     ],
     deps = [
         ":blas",
@@ -341,6 +538,8 @@ cc_library(
         "lapack-netlib/LAPACKE/include/lapacke.h",
         "lapack-netlib/LAPACKE/include/lapacke_utils.h",
         "lapack-netlib/LAPACKE/include/lapacke_mangling.h",
+        "lapack-netlib/LAPACKE/src/lapacke_dgels.c",
+        "lapack-netlib/LAPACKE/src/lapacke_dgels_work.c",
     ] + glob([
         "lapack-netlib/LAPACKE/src/lapacke_dgecon*.c",
         "lapack-netlib/LAPACKE/src/lapacke_dgetrf*.c",
@@ -359,6 +558,18 @@ cc_binary(
     name = "lapacke_example_user",
     srcs = [
         "lapack-netlib/LAPACKE/example/example_user.c",
+    ],
+    deps = [
+        ":lapacke"
+    ]
+)
+
+cc_binary(
+    name = "example_DGELS_colmajor",
+    srcs = [
+        "lapack-netlib/LAPACKE/example/example_DGELS_colmajor.c",
+        "lapack-netlib/LAPACKE/example/lapacke_example_aux.c",
+        "lapack-netlib/LAPACKE/example/lapacke_example_aux.h",
     ],
     deps = [
         ":lapacke"
