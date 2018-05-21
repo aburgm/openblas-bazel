@@ -37,6 +37,7 @@ load("@fortran_rules//:blas.bzl", "blas_library")
 #)
 
 # TODO(armin): Config should be select()ed based on platform.
+# Create for other platforms by running "make config.h" on those platforms.
 genrule(
     name = "config",
     outs = ["config.h"],
@@ -132,8 +133,51 @@ blas_library(
         "dcopy": { "srcs": ["interface/copy.c"] },
         "dasum": { "srcs": ["interface/asum.c"] },
         "dscal": { "srcs": ["interface/scal.c"] },
+        "ddot": { "srcs": ["interface/dot.c"] },
+        "daxpy": { "srcs": ["interface/axpy.c"] },
+        "dtrsv": { "srcs": ["interface/trsv.c"] },
         "dgemv": { "srcs": ["interface/gemv.c"] },
         "dgemm": { "srcs": ["interface/gemm.c"] },
+        "dtrsv_NUU": {
+            "srcs": ["driver/level2/trsv_U.c"],
+            "hdrs": [],
+            "copts": ["-DUNIT", "-UTRANSA"]
+        },
+        "dtrsv_NUN": {
+            "srcs": ["driver/level2/trsv_U.c"],
+            "hdrs": [],
+            "copts": ["-UUNIT", "-UTRANSA"]
+        },
+        "dtrsv_NLU": {
+            "srcs": ["driver/level2/trsv_L.c"],
+            "hdrs": [],
+            "copts": ["-DUNIT", "-UTRANSA"]
+        },
+        "dtrsv_TUN": {
+            "srcs": ["driver/level2/trsv_L.c"],
+            "hdrs": [],
+            "copts": ["-UUNIT", "-DTRANSA"]
+        },
+        "dtrsv_TLN": {
+            "srcs": ["driver/level2/trsv_U.c"],
+            "hdrs": [],
+            "copts": ["-UUNIT", "-DTRANSA"]
+        },
+        "dtrsv_NLN": {
+            "srcs": ["driver/level2/trsv_L.c"],
+            "hdrs": [],
+            "copts": ["-UUNIT", "-UTRANSA"]
+        },
+        "dtrsv_TUU": {
+            "srcs": ["driver/level2/trsv_L.c"],
+            "hdrs": [],
+            "copts": ["-DUNIT", "-DTRANSA"]
+        },
+        "dtrsv_TLU": {
+            "srcs": ["driver/level2/trsv_U.c"],
+            "hdrs": [],
+            "copts": ["-DUNIT", "-DTRANSA"]
+        },
         "dgemm_nn": {
             "srcs": ["driver/level3/gemm.c"],
             "hdrs": ["driver/level3/level3.c"],
@@ -168,6 +212,14 @@ blas_library(
             "srcs": ["kernel/x86_64/dscal.c"],
             "hdrs": ["kernel/x86_64/dscal_microk_haswell-2.c"],
         },
+        "ddot_k": {
+            "srcs": ["kernel/x86_64/ddot.c"],
+            "hdrs": ["kernel/x86_64/ddot_microk_haswell-2.c"],
+        },
+        "daxpy_k": {
+            "srcs": ["kernel/x86_64/daxpy.c"],
+            "hdrs": ["kernel/x86_64/daxpy_microk_haswell-2.c"],
+        },
         "dgemv_n": { # TODO: this will have to become a select for other architectures
             "srcs": ["kernel/x86_64/dgemv_n_4.c"],
             "hdrs": ["kernel/x86_64/dgemv_n_microk_haswell-4.c"],
@@ -194,13 +246,24 @@ blas_library(
         "dgemm_oncopy": {
             "srcs": ["kernel/generic/gemm_ncopy_8.c"],
         },
+        "dswap_k": {
+            "srcs": ["kernel/x86_64/swap_sse2.S"],
+        },
+        "dtrsm_iltucopy": {
+            "srcs": ["kernel/generic/trsm_ltcopy_4.c"],
+            "copts": ["-UOUTER", "-ULOWER", "-DUNIT"],
+        },
+        "dtrsm_kernel_LT": {
+            "srcs": ["kernel/generic/trsm_kernel_LT.c"],
+            "copts": ["-DTRSMKERNEL", "-UUPPER", "-DLT", "-UCONJ"],
+        },
     }
 )
 
 # The fortran parts of lapack reference implementation which are
 # not available otherwise in lapack/ in C.
 fortran_library(
-    name = "lapack",
+    name = "lapack_f",
     srcs = [
         "lapack-netlib/SRC/dgecon.f",
         "lapack-netlib/SRC/dlange.f",
@@ -215,6 +278,28 @@ fortran_library(
     deps = [
         ":blas",
     ]
+)
+
+blas_library(
+    name = "lapack",
+    srcs = [],
+    hdrs = [],
+    deps = [":lapack_f"],
+    modules = {
+        "dgetrf": { "srcs": ["interface/lapack/getrf.c"] },
+        "dgetrf_single": {
+            "srcs": ["lapack/getrf/getrf_single.c"],
+            "copts": ["-DUNIT"]
+        },
+        "dgetf2_k": {
+            "srcs": ["lapack/getf2/getf2_k.c"],
+        },
+        "dlaswp_plus": {
+            "srcs": ["lapack/laswp/generic/laswp_k.c"],
+            "hdrs": ["lapack/laswp/generic/laswp_k_8.c"],
+            "copts": ["-UMINUS"],
+        },
+    }
 )
 
 genrule(
