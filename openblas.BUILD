@@ -186,6 +186,46 @@ blas_library(
             "hdrs": [],
             "copts": ["-DUNIT", "-DTRANSA"]
         },
+        "dtrmv_TLN": {
+            "srcs": ["driver/level2/trmv_U.c"],
+            "hdrs": [],
+            "copts": ["-UUNIT", "-DTRANSA"]
+        },
+        "dtrmv_TLU": {
+            "srcs": ["driver/level2/trmv_U.c"],
+            "hdrs": [],
+            "copts": ["-DUNIT", "-DTRANSA"]
+        },
+        "dtrmv_NUN": {
+            "srcs": ["driver/level2/trmv_U.c"],
+            "hdrs": [],
+            "copts": ["-UUNIT", "-UTRANSA"]
+        },
+        "dtrmv_NUU": {
+            "srcs": ["driver/level2/trmv_U.c"],
+            "hdrs": [],
+            "copts": ["-DUNIT", "-UTRANSA"]
+        },
+        "dtrmv_TUN": {
+            "srcs": ["driver/level2/trmv_L.c"],
+            "hdrs": [],
+            "copts": ["-UUNIT", "-DTRANSA"]
+        },
+        "dtrmv_TUU": {
+            "srcs": ["driver/level2/trmv_L.c"],
+            "hdrs": [],
+            "copts": ["-DUNIT", "-DTRANSA"]
+        },
+        "dtrmv_NLN": {
+            "srcs": ["driver/level2/trmv_L.c"],
+            "hdrs": [],
+            "copts": ["-UUNIT", "-UTRANSA"]
+        },
+        "dtrmv_NLU": {
+            "srcs": ["driver/level2/trmv_L.c"],
+            "hdrs": [],
+            "copts": ["-DUNIT", "-UTRANSA"]
+        },
         "dgemm_nn": {
             "srcs": ["driver/level3/gemm.c"],
             "hdrs": ["driver/level3/level3.c"],
@@ -205,6 +245,86 @@ blas_library(
             "srcs": ["driver/level3/gemm.c"],
             "hdrs": ["driver/level3/level3.c"],
             "copts": ["-DTT"],
+        },
+        "dtrsm_LTLN": {
+            "srcs": ["driver/level3/trsm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-UUPPER", "-UUNIT"],
+        },
+        "dtrsm_LTLU": {
+            "srcs": ["driver/level3/trsm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-UUPPER", "-DUNIT"],
+        },
+        "dtrsm_LTUN": {
+            "srcs": ["driver/level3/trsm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-DUPPER", "-UUNIT"],
+        },
+        "dtrsm_LTUU": {
+            "srcs": ["driver/level3/trsm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-DUPPER", "-DUNIT"],
+        },
+        "dtrsm_LNLN": {
+            "srcs": ["driver/level3/trsm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-UUPPER", "-UUNIT"],
+        },
+        "dtrsm_LNLU": {
+            "srcs": ["driver/level3/trsm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-UUPPER", "-DUNIT"],
+        },
+        "dtrsm_LNUN": {
+            "srcs": ["driver/level3/trsm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-DUPPER", "-UUNIT"],
+        },
+        "dtrsm_LNUU": {
+            "srcs": ["driver/level3/trsm_L.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-DUPPER", "-DUNIT"],
+        },
+        "dtrsm_RTLN": {
+            "srcs": ["driver/level3/trsm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-UUPPER", "-UUNIT"],
+        },
+        "dtrsm_RTLU": {
+            "srcs": ["driver/level3/trsm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-UUPPER", "-DUNIT"],
+        },
+        "dtrsm_RTUN": {
+            "srcs": ["driver/level3/trsm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-DUPPER", "-UUNIT"],
+        },
+        "dtrsm_RTUU": {
+            "srcs": ["driver/level3/trsm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-DTRANSA", "-DUPPER", "-DUNIT"],
+        },
+        "dtrsm_RNLN": {
+            "srcs": ["driver/level3/trsm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-UUPPER", "-UUNIT"],
+        },
+        "dtrsm_RNLU": {
+            "srcs": ["driver/level3/trsm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-UUPPER", "-DUNIT"],
+        },
+        "dtrsm_RNUN": {
+            "srcs": ["driver/level3/trsm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-DUPPER", "-UUNIT"],
+        },
+        "dtrsm_RNUU": {
+            "srcs": ["driver/level3/trsm_R.c"],
+            "hdrs": ["driver/level3/level3.c"],
+            "copts": ["-UTRANSA", "-DUPPER", "-DUNIT"],
         },
         "dtrmm_LNUU": {
             "srcs": ["driver/level3/trmm_L.c"],
@@ -347,9 +467,81 @@ blas_library(
             "srcs": ["kernel/generic/trsm_ltcopy_4.c"],
             "copts": ["-UOUTER", "-ULOWER", "-DUNIT"],
         },
+        "dtrsm_iltncopy": {
+            "srcs": ["kernel/generic/trsm_ltcopy_4.c"],
+            "copts": ["-UOUTER", "-ULOWER", "-UUNIT"],
+        },
+        "dtrsm_iunucopy": {
+            "srcs": ["kernel/generic/trsm_uncopy_4.c"],
+            "copts": ["-UOUTER", "-ULOWER", "-DUNIT"],
+        },
+        "dtrsm_iunncopy": {
+            "srcs": ["kernel/generic/trsm_uncopy_4.c"],
+            "copts": ["-UOUTER", "-ULOWER", "-UUNIT"],
+        },
+        "dtrsm_ilnucopy": {
+            "srcs": ["kernel/generic/trsm_lncopy_4.c"],
+            "copts": ["-UOUTER", "-DLOWER", "-DUNIT"],
+        },
+        "dtrsm_ilnncopy": {
+            "srcs": ["kernel/generic/trsm_lncopy_4.c"],
+            "copts": ["-UOUTER", "-DLOWER", "-UUNIT"],
+        },
+        "dtrsm_iutncopy": {
+            "srcs": ["kernel/generic/trsm_utcopy_4.c"],
+            "copts": ["-UOUTER", "-ULOWER", "-UUNIT"],
+        },
+        "dtrsm_iutucopy": {
+            "srcs": ["kernel/generic/trsm_utcopy_4.c"],
+            "copts": ["-UOUTER", "-ULOWER", "-DUNIT"],
+        },
+        "dtrsm_ounucopy": {
+            "srcs": ["kernel/generic/trsm_uncopy_8.c"],
+            "copts": ["-DOUTER", "-ULOWER", "-DUNIT"],
+        },
+        "dtrsm_ounncopy": {
+            "srcs": ["kernel/generic/trsm_uncopy_8.c"],
+            "copts": ["-DOUTER", "-ULOWER", "-UUNIT"],
+        },
+        "dtrsm_olnucopy": {
+            "srcs": ["kernel/generic/trsm_lncopy_8.c"],
+            "copts": ["-DOUTER", "-DLOWER", "-DUNIT"],
+        },
+        "dtrsm_olnncopy": {
+            "srcs": ["kernel/generic/trsm_lncopy_8.c"],
+            "copts": ["-DOUTER", "-DLOWER", "-UUNIT"],
+        },
+        "dtrsm_oltncopy": {
+            "srcs": ["kernel/generic/trsm_ltcopy_8.c"],
+            "copts": ["-DOUTER", "-DLOWER", "-UUNIT"],
+        },
+        "dtrsm_oltucopy": {
+            "srcs": ["kernel/generic/trsm_ltcopy_8.c"],
+            "copts": ["-DOUTER", "-DLOWER", "-DUNIT"],
+        },
+        "dtrsm_outncopy": {
+            "srcs": ["kernel/generic/trsm_utcopy_8.c"],
+            "copts": ["-DOUTER", "-ULOWER", "-UUNIT"],
+        },
+        "dtrsm_outucopy": {
+            "srcs": ["kernel/generic/trsm_utcopy_8.c"],
+            "copts": ["-DOUTER", "-ULOWER", "-DUNIT"],
+        },
         "dtrsm_kernel_LT": {
             "srcs": ["kernel/generic/trsm_kernel_LT.c"],
             "copts": ["-DTRSMKERNEL", "-UUPPER", "-DLT", "-UCONJ"],
+        },
+        "dtrsm_kernel_LN": {
+            "srcs": ["kernel/generic/trsm_kernel_LN.c"],
+            "copts": ["-DTRSMKERNEL", "-DUPPER", "-DLN", "-UCONJ"],
+        },
+        "dtrsm_kernel_RT": {
+            "srcs": ["kernel/generic/trsm_kernel_RT.c"],
+            "copts": ["-DTRSMKERNEL", "-UUPPER", "-DRT", "-UCONJ"],
+        },
+        "dtrsm_kernel_RN": {
+            "srcs": ["kernel/x86_64/dtrsm_kernel_RN_haswell.c"],
+            "copts": ["-DTRSMKERNEL", "-DUPPER", "-DRN", "-UCONJ"],
         },
         "dtrmm_iutncopy": {
             "srcs": ["kernel/generic/trmm_utcopy_4.c"],
@@ -484,9 +676,14 @@ blas_library(
     deps = [":lapack_f"],
     modules = {
         "dgetrf": { "srcs": ["interface/lapack/getrf.c"] },
+        "dgesv": { "srcs": ["interface/lapack/gesv.c"] },
         "dgetrf_single": {
             "srcs": ["lapack/getrf/getrf_single.c"],
-            "copts": ["-DUNIT"]
+            "copts": ["-DUNIT"],
+        },
+        "dgetrs_N_single": {
+            "srcs": ["lapack/getrs/getrs_single.c"],
+            "copts": ["-UTRANS"],
         },
         "dgetf2_k": {
             "srcs": ["lapack/getf2/getf2_k.c"],
@@ -540,6 +737,8 @@ cc_library(
         "lapack-netlib/LAPACKE/include/lapacke_mangling.h",
         "lapack-netlib/LAPACKE/src/lapacke_dgels.c",
         "lapack-netlib/LAPACKE/src/lapacke_dgels_work.c",
+        "lapack-netlib/LAPACKE/src/lapacke_dgesv.c",
+        "lapack-netlib/LAPACKE/src/lapacke_dgesv_work.c",
     ] + glob([
         "lapack-netlib/LAPACKE/src/lapacke_dgecon*.c",
         "lapack-netlib/LAPACKE/src/lapacke_dgetrf*.c",
@@ -568,6 +767,42 @@ cc_binary(
     name = "example_DGELS_colmajor",
     srcs = [
         "lapack-netlib/LAPACKE/example/example_DGELS_colmajor.c",
+        "lapack-netlib/LAPACKE/example/lapacke_example_aux.c",
+        "lapack-netlib/LAPACKE/example/lapacke_example_aux.h",
+    ],
+    deps = [
+        ":lapacke"
+    ]
+)
+
+cc_binary(
+    name = "example_DGELS_rowmajor",
+    srcs = [
+        "lapack-netlib/LAPACKE/example/example_DGELS_rowmajor.c",
+        "lapack-netlib/LAPACKE/example/lapacke_example_aux.c",
+        "lapack-netlib/LAPACKE/example/lapacke_example_aux.h",
+    ],
+    deps = [
+        ":lapacke"
+    ]
+)
+
+cc_binary(
+    name = "example_DGESV_rowmajor",
+    srcs = [
+        "lapack-netlib/LAPACKE/example/example_DGESV_rowmajor.c",
+        "lapack-netlib/LAPACKE/example/lapacke_example_aux.c",
+        "lapack-netlib/LAPACKE/example/lapacke_example_aux.h",
+    ],
+    deps = [
+        ":lapacke"
+    ]
+)
+
+cc_binary(
+    name = "example_DGESV_colmajor",
+    srcs = [
+        "lapack-netlib/LAPACKE/example/example_DGESV_colmajor.c",
         "lapack-netlib/LAPACKE/example/lapacke_example_aux.c",
         "lapack-netlib/LAPACKE/example/lapacke_example_aux.h",
     ],
